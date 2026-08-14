@@ -12,8 +12,7 @@ export const finishGameSchema = z.object({
   score: z
     .number()
     .int("Score must be an integer")
-    .min(0, "Score cannot be negative")
-    .max(900, "Score exceeds maximum possible value"),
+    .min(0, "Score cannot be negative"),
 });
 
 export type FinishGameSchema = z.infer<typeof finishGameSchema>;

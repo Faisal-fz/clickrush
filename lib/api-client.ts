@@ -1,32 +1,7 @@
 import type { GameMode } from "@/lib/game-modes";
+import { parseJsonResponse } from "@/lib/fetch-result";
 import type { LeaderboardType } from "@/schema/leaderboard.schema";
 import type { FinishGameSchema } from "@/schema/game.schema";
-
-type FieldErrors = Record<string, string[]>;
-
-type ApiSuccess<T> = { ok: true; data: T };
-type ApiFailure = { ok: false; error: string; fieldErrors?: FieldErrors };
-
-export type ApiResult<T> = ApiSuccess<T> | ApiFailure;
-
-type ApiErrorBody = {
-  error?: string;
-  issues?: FieldErrors;
-};
-
-async function parseResponse<T>(response: Response): Promise<ApiResult<T>> {
-  const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      error: body.error ?? "Something went wrong",
-      fieldErrors: body.issues,
-    };
-  }
-
-  return { ok: true, data: body as T };
-}
 
 type StartGameResponse = {
   message: string;
@@ -77,9 +52,7 @@ type GameHistoryResponse = {
   games: GameHistoryEntry[];
 };
 
-export async function startGame(
-  mode: GameMode,
-): Promise<ApiResult<StartGameResponse>> {
+export async function startGame(mode: GameMode) {
   const response = await fetch("/api/game/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -87,12 +60,10 @@ export async function startGame(
     body: JSON.stringify({ mode }),
   });
 
-  return parseResponse(response);
+  return parseJsonResponse<StartGameResponse>(response);
 }
 
-export async function finishGame(
-  data: FinishGameSchema,
-): Promise<ApiResult<FinishGameResponse>> {
+export async function finishGame(data: FinishGameSchema) {
   const response = await fetch("/api/game/finish", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -100,39 +71,35 @@ export async function finishGame(
     body: JSON.stringify(data),
   });
 
-  return parseResponse(response);
+  return parseJsonResponse<FinishGameResponse>(response);
 }
 
 export async function getLeaderboard(
   type: LeaderboardType = "global",
   mode: GameMode = "classic",
-): Promise<ApiResult<LeaderboardResponse>> {
+) {
   const response = await fetch(
     `/api/leaderboard?type=${type}&mode=${mode}`,
   );
 
-  return parseResponse(response);
+  return parseJsonResponse<LeaderboardResponse>(response);
 }
 
-export async function getGameHistory(): Promise<
-  ApiResult<GameHistoryResponse>
-> {
+export async function getGameHistory() {
   const response = await fetch("/api/profile/games", {
     credentials: "include",
   });
 
-  return parseResponse(response);
+  return parseJsonResponse<GameHistoryResponse>(response);
 }
 
-export async function signOut(): Promise<
-  ApiResult<{ message: string }>
-> {
+export async function signOut() {
   const response = await fetch("/api/auth/signout", {
     method: "POST",
     credentials: "include",
   });
 
-  return parseResponse(response);
+  return parseJsonResponse<{ message: string }>(response);
 }
 
 export type { GameMode };

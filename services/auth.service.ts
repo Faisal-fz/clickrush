@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { AppError } from "@/lib/errors";
 import { LoginSchema, SignupSchema } from "@/schema/auth.schema";
 import bcrypt from "bcrypt";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
 export const signup = async (data: SignupSchema) => {
   const { name, email, password } = data;
@@ -53,8 +53,10 @@ export const login = async (data: LoginSchema) => {
     throw new AppError("Invalid email or password", 401);
   }
 
-  //create a JWT token
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+  // Create a JWT token
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+    expiresIn: "15m",
+  });
 
   return {
     user: {

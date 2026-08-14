@@ -8,6 +8,7 @@ import {
 } from "@/lib/game-modes";
 import { FinishGameSchema } from "@/schema/game.schema";
 
+// Auto-complete RUNNING games whose timer has elapsed so users can start a new round.
 async function expireStaleGames(userId: string) {
   const runningGames = await prisma.game.findMany({
     where: {

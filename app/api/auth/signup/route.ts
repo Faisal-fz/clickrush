@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
+import {
+  handleServiceError,
+  jsonError,
+} from "@/lib/api-route";
 import { signupSchema } from "@/schema/auth.schema";
 import { signup } from "@/services/auth.service";
-import { AppError } from "@/lib/errors";
 
 export async function POST(request: Request) {
   const data = await request.json();
   const validated = signupSchema.safeParse(data);
 
   if (!validated.success) {
-    return NextResponse.json(
-      { error: "Validation failed", issues: validated.error.flatten().fieldErrors },
-      { status: 400 },
+    return jsonError(
+      "Validation failed",
+      400,
+      validated.error.flatten().fieldErrors,
     );
   }
 
@@ -21,13 +25,6 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-
-    console.error("Signup failed:", error);
-    const message =
-      error instanceof Error ? error.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return handleServiceError(error, "Signup failed:");
   }
 }

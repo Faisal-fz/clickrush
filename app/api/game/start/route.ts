@@ -1,30 +1,29 @@
 import { NextResponse } from "next/server";
 import { getDurationSeconds } from "@/lib/game-modes";
-import { AppError } from "@/lib/errors";
+import {
+  getAuthenticatedUserId,
+  handleServiceError,
+  jsonError,
+  unauthorizedResponse,
+} from "@/lib/api-route";
 import { startGameSchema } from "@/schema/game.schema";
 import { startGame } from "@/services/game.service";
 
 export async function POST(request: Request) {
+  const userId = getAuthenticatedUserId(request);
+  if (!userId) {
+    return unauthorizedResponse();
+  }
+
   try {
-    const userId = request.headers.get("x-user-id");
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 },
-      );
-    }
-
     const body = await request.json().catch(() => ({}));
     const validated = startGameSchema.safeParse(body);
 
     if (!validated.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid request",
-          issues: validated.error.flatten().fieldErrors,
-        },
-        { status: 400 },
+      return jsonError(
+        "Invalid request",
+        400,
+        validated.error.flatten().fieldErrors,
       );
     }
 
@@ -41,18 +40,6 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    if (error instanceof AppError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.statusCode },
-      );
-    }
-
-    console.error("Start game failed:", error);
-
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return handleServiceError(error, "Start game failed:");
   }
 }

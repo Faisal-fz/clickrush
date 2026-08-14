@@ -21,6 +21,27 @@ const MODE_CONFIG = {
   { durationSeconds: number; maxScore: number; label: string }
 >;
 
+export const MODE_OPTIONS: {
+  mode: GameMode;
+  label: string;
+  description: string;
+}[] = [
+  {
+    mode: "classic",
+    label: MODE_CONFIG.CLASSIC.label,
+    description: `${MODE_CONFIG.CLASSIC.durationSeconds} seconds`,
+  },
+  {
+    mode: "quick",
+    label: MODE_CONFIG.QUICK.label,
+    description: `${MODE_CONFIG.QUICK.durationSeconds} seconds`,
+  },
+];
+
+export const MODE_TABS: { mode: GameMode; label: string }[] = MODE_OPTIONS.map(
+  ({ mode, label }) => ({ mode, label }),
+);
+
 export function toPrismaMode(mode: GameMode): PrismaGameMode {
   return mode === "classic" ? "CLASSIC" : "QUICK";
 }

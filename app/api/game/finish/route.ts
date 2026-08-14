@@ -1,25 +1,28 @@
-import { AppError } from "@/lib/errors";
+import { NextResponse } from "next/server";
+import {
+  getAuthenticatedUserId,
+  handleServiceError,
+  jsonError,
+  unauthorizedResponse,
+} from "@/lib/api-route";
 import { finishGameSchema } from "@/schema/game.schema";
 import { finishGame } from "@/services/game.service";
-import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-  try {
-    const userId = request.headers.get("x-user-id");
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const userId = getAuthenticatedUserId(request);
+  if (!userId) {
+    return unauthorizedResponse();
+  }
 
+  try {
     const body = await request.json();
     const validated = finishGameSchema.safeParse(body);
 
     if (!validated.success) {
-      return NextResponse.json(
-        {
-          error: "Validation failed",
-          issues: validated.error.flatten().fieldErrors,
-        },
-        { status: 400 },
+      return jsonError(
+        "Validation failed",
+        400,
+        validated.error.flatten().fieldErrors,
       );
     }
 
@@ -32,15 +35,6 @@ export async function POST(request: Request) {
       { status: 200 },
     );
   } catch (error) {
-    if (error instanceof AppError) {
-      return NextResponse.json(
-        { error: error.message },
-        { status: error.statusCode },
-      );
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return handleServiceError(error, "Finish game failed:");
   }
 }

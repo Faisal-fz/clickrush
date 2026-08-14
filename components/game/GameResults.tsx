@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
 import { springTransition } from "@/lib/motion";

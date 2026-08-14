@@ -22,6 +22,12 @@ export function Navbar() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lastPathname, setLastPathname] = useState(pathname);
+
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setMenuOpen(false);
+  }
 
   useEffect(() => {
     async function loadProfile() {
@@ -35,10 +41,6 @@ export function Navbar() {
     }
 
     loadProfile();
-  }, [pathname]);
-
-  useEffect(() => {
-    setMenuOpen(false);
   }, [pathname]);
 
   async function handleSignOut() {

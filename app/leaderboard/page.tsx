@@ -2,23 +2,20 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { getLeaderboard, type GameMode, type LeaderboardEntry } from "@/lib/api-client";
+import { getLeaderboard, type LeaderboardEntry } from "@/lib/api-client";
 import { getProfile } from "@/lib/auth-client";
-import { getModeLabel } from "@/lib/game-modes";
+import { getModeLabel, MODE_TABS, type GameMode } from "@/lib/game-modes";
 import type { LeaderboardType } from "@/schema/leaderboard.schema";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { rowStagger, staggerContainer } from "@/lib/motion";
 
+const modeTabs = MODE_TABS;
+
 const tabs: { type: LeaderboardType; label: string }[] = [
   { type: "global", label: "Global" },
   { type: "daily", label: "Daily" },
   { type: "weekly", label: "Weekly" },
-];
-
-const modeTabs: { mode: GameMode; label: string }[] = [
-  { mode: "classic", label: "Classic" },
-  { mode: "quick", label: "Quick" },
 ];
 
 const rankMedals: Record<number, string> = {

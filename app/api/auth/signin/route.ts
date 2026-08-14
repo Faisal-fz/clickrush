@@ -1,23 +1,27 @@
-import { AppError } from "@/lib/errors";
+import { NextResponse } from "next/server";
+import {
+  handleServiceError,
+  jsonError,
+} from "@/lib/api-route";
 import { loginSchema } from "@/schema/auth.schema";
 import { login } from "@/services/auth.service";
-import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   const data = await request.json();
   const validated = loginSchema.safeParse(data);
 
   if (!validated.success) {
-    return NextResponse.json(
-      { error: "Validation failed", issues: validated.error.flatten().fieldErrors },
-      { status: 400 },
+    return jsonError(
+      "Validation failed",
+      400,
+      validated.error.flatten().fieldErrors,
     );
   }
 
   try {
     const { user, token } = await login(validated.data);
     const response = NextResponse.json(
-      { message: "Login successful", user , token},
+      { message: "Login successful", user, token },
       { status: 200 },
     );
     response.cookies.set("accessToken", token, {
@@ -29,11 +33,7 @@ export async function POST(request: Request) {
     });
 
     return response;
-
   } catch (error) {
-    if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.statusCode });
-    }
-    throw error;
+    return handleServiceError(error, "Sign in failed:");
   }
 }

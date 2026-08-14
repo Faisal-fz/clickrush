@@ -1,3 +1,7 @@
+/**
+ * API proxy: verifies the JWT cookie once and injects x-user-id so route
+ * handlers don't each re-read and decode cookies.
+ */
 import { NextRequest, NextResponse } from "next/server";
 import { getTokenFromRequest, verifyToken } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
@@ -8,8 +12,6 @@ const PROTECTED_ROUTES = [
 ];
 
 export function proxy(request: NextRequest) {
-
-    console.log("🔥 PROXY HIT:", request.nextUrl.pathname);
   const pathname = request.nextUrl.pathname;
 
   const isProtectedRoute = PROTECTED_ROUTES.some(

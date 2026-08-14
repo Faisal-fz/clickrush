@@ -1,48 +1,21 @@
-import { prisma } from "@/lib/db";
-import { getModeStats } from "@/services/leaderboard.service";
 import { NextResponse } from "next/server";
+import {
+  getAuthenticatedUserId,
+  handleServiceError,
+  unauthorizedResponse,
+} from "@/lib/api-route";
+import { getUserProfile } from "@/services/profile.service";
 
 export async function GET(request: Request) {
-  const userId = request.headers.get("x-user-id");
-
+  const userId = getAuthenticatedUserId(request);
   if (!userId) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return unauthorizedResponse();
   }
 
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-    },
-  });
-
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  try {
+    const profile = await getUserProfile(userId);
+    return NextResponse.json(profile);
+  } catch (error) {
+    return handleServiceError(error, "Profile fetch failed:");
   }
-
-  const [totalGamesPlayed, classicStats, quickStats] = await Promise.all([
-    prisma.game.count({
-      where: {
-        userId,
-        status: "COMPLETED",
-      },
-    }),
-    getModeStats(userId, "classic"),
-    getModeStats(userId, "quick"),
-  ]);
-
-  return NextResponse.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    totalGamesPlayed,
-    stats: {
-      classic: classicStats,
-      quick: quickStats,
-    },
-  });
 }

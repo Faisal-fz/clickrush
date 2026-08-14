@@ -1,6 +1,5 @@
+import { parseJsonResponse } from "@/lib/fetch-result";
 import type { LoginSchema, SignupSchema } from "@/schema/auth.schema";
-
-type FieldErrors = Record<string, string[]>;
 
 type AuthUser = {
   id: string;
@@ -8,47 +7,17 @@ type AuthUser = {
   email: string;
 };
 
-type AuthSuccess<T> = { ok: true; data: T };
-type AuthFailure = { ok: false; error: string; fieldErrors?: FieldErrors };
-
-type AuthResult<T> = AuthSuccess<T> | AuthFailure;
-
-type ApiErrorBody = {
-  error?: string;
-  issues?: FieldErrors;
-};
-
-async function parseAuthResponse<T>(
-  response: Response,
-): Promise<AuthResult<T>> {
-  const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
-
-  if (!response.ok) {
-    return {
-      ok: false,
-      error: body.error ?? "Something went wrong",
-      fieldErrors: body.issues,
-    };
-  }
-
-  return { ok: true, data: body as T };
-}
-
-export async function signUp(
-  data: SignupSchema,
-): Promise<AuthResult<{ message: string; user: AuthUser }>> {
+export async function signUp(data: SignupSchema) {
   const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   });
 
-  return parseAuthResponse(response);
+  return parseJsonResponse<{ message: string; user: AuthUser }>(response);
 }
 
-export async function signIn(
-  data: LoginSchema,
-): Promise<AuthResult<{ message: string; user: AuthUser }>> {
+export async function signIn(data: LoginSchema) {
   const response = await fetch("/api/auth/signin", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -56,7 +25,7 @@ export async function signIn(
     body: JSON.stringify(data),
   });
 
-  return parseAuthResponse(response);
+  return parseJsonResponse<{ message: string; user: AuthUser }>(response);
 }
 
 export type ModeStats = {
@@ -78,10 +47,10 @@ export type Profile = {
   };
 };
 
-export async function getProfile(): Promise<AuthResult<Profile>> {
+export async function getProfile() {
   const response = await fetch("/api/profile", {
     credentials: "include",
   });
 
-  return parseAuthResponse(response);
+  return parseJsonResponse<Profile>(response);
 }

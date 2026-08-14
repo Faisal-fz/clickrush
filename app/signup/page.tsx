@@ -7,6 +7,7 @@ import { AuthCard } from "@/components/auth/AuthCard";
 import { FormField } from "@/components/auth/FormField";
 import { SubmitButton } from "@/components/auth/SubmitButton";
 import { signUp } from "@/lib/auth-client";
+import { mapApiFieldErrors, mapZodFieldErrors } from "@/lib/form-errors";
 import { signupSchema } from "@/schema/auth.schema";
 
 export default function SignUpPage() {
@@ -25,14 +26,7 @@ export default function SignUpPage() {
 
     const validated = signupSchema.safeParse({ name, email, password });
     if (!validated.success) {
-      const errors: Record<string, string> = {};
-      for (const issue of validated.error.issues) {
-        const field = issue.path[0];
-        if (typeof field === "string" && !errors[field]) {
-          errors[field] = issue.message;
-        }
-      }
-      setFieldErrors(errors);
+      setFieldErrors(mapZodFieldErrors(validated.error.issues));
       return;
     }
 
@@ -42,11 +36,7 @@ export default function SignUpPage() {
 
     if (!result.ok) {
       if (result.fieldErrors) {
-        const errors: Record<string, string> = {};
-        for (const [key, messages] of Object.entries(result.fieldErrors)) {
-          errors[key] = messages[0];
-        }
-        setFieldErrors(errors);
+        setFieldErrors(mapApiFieldErrors(result.fieldErrors));
       } else {
         setFormError(result.error);
       }

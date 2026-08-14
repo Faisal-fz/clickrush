@@ -5,16 +5,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getGameHistory, type GameHistoryEntry } from "@/lib/api-client";
 import { getProfile, type Profile } from "@/lib/auth-client";
-import { fromPrismaMode, getModeLabel, type GameMode } from "@/lib/game-modes";
+import { MODE_TABS, fromPrismaMode, getModeLabel, type GameMode } from "@/lib/game-modes";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageShell } from "@/components/ui/PageShell";
 import { StatCard } from "@/components/ui/StatCard";
 import { fadeInUp, rowStagger, staggerContainer } from "@/lib/motion";
 
-const modeTabs: { mode: GameMode; label: string }[] = [
-  { mode: "classic", label: "Classic" },
-  { mode: "quick", label: "Quick" },
-];
+const modeTabs = MODE_TABS;
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString();

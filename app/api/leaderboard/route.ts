@@ -1,30 +1,19 @@
 import { NextResponse } from "next/server";
-import {
-  leaderboardQuerySchema,
-} from "@/schema/leaderboard.schema";
-import {
-  getLeaderboard,
-} from "@/services/leaderboard.service";
+import { handleServiceError, jsonError } from "@/lib/api-route";
+import { leaderboardQuerySchema } from "@/schema/leaderboard.schema";
+import { getLeaderboard } from "@/services/leaderboard.service";
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
 
-    const type = url.searchParams.get("type");
-    const mode = url.searchParams.get("mode");
-
     const validated = leaderboardQuerySchema.safeParse({
-      type: type ?? undefined,
-      mode: mode ?? undefined,
+      type: url.searchParams.get("type") ?? undefined,
+      mode: url.searchParams.get("mode") ?? undefined,
     });
 
     if (!validated.success) {
-      return NextResponse.json(
-        {
-          error: "Invalid leaderboard query",
-        },
-        { status: 400 },
-      );
+      return jsonError("Invalid leaderboard query", 400);
     }
 
     const leaderboard = await getLeaderboard(
@@ -41,16 +30,6 @@ export async function GET(request: Request) {
       { status: 200 },
     );
   } catch (error) {
-    console.error(
-      "Leaderboard fetch failed:",
-      error,
-    );
-
-    return NextResponse.json(
-      {
-        error: "Failed to fetch leaderboard",
-      },
-      { status: 500 },
-    );
+    return handleServiceError(error, "Leaderboard fetch failed:");
   }
 }
