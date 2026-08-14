@@ -93,10 +93,11 @@ export default function LeaderboardPage() {
 
       <div className="relative mx-auto mt-8 flex w-fit justify-center gap-1 rounded-full border border-white/10 bg-black/30 p-1 backdrop-blur-sm">
         {modeTabs.map((tab) => (
-          <button
-            key={tab.mode}
-            type="button"
-            onClick={() => setActiveMode(tab.mode)}
+            <button
+              key={tab.mode}
+              type="button"
+              aria-pressed={activeMode === tab.mode}
+              onClick={() => setActiveMode(tab.mode)}
             className="relative rounded-full px-5 py-2 text-sm font-medium text-zinc-400 transition-colors hover:text-white"
           >
             {activeMode === tab.mode && (
@@ -153,12 +154,13 @@ export default function LeaderboardPage() {
             No scores yet. Be the first to play!
           </p>
         ) : (
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs sm:text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="px-6 py-4 font-medium text-zinc-400">Rank</th>
-                <th className="px-6 py-4 font-medium text-zinc-400">Player</th>
-                <th className="px-6 py-4 text-right font-medium text-zinc-400">
+                <th className="px-3 py-4 font-medium text-zinc-400 sm:px-6">Rank</th>
+                <th className="px-3 py-4 font-medium text-zinc-400 sm:px-6">Player</th>
+                <th className="px-3 py-4 text-right font-medium text-zinc-400 sm:px-6">
                   Score
                 </th>
               </tr>
@@ -186,7 +188,7 @@ export default function LeaderboardPage() {
                         : ""
                     }`}
                   >
-                    <td className="px-6 py-4 font-medium text-white">
+                    <td className="px-3 py-4 font-medium whitespace-nowrap text-white sm:px-6">
                       {medal ? (
                         <span>
                           {medal} #{entry.rank}
@@ -195,7 +197,7 @@ export default function LeaderboardPage() {
                         `#${entry.rank}`
                       )}
                     </td>
-                    <td className="px-6 py-4 text-zinc-300">
+                    <td className="px-3 py-4 text-zinc-300 sm:px-6">
                       {entry.user?.name ?? "Unknown"}
                       {isCurrentUser && (
                         <span className="ml-2 text-xs text-orange-400">
@@ -203,7 +205,7 @@ export default function LeaderboardPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right font-bold tabular-nums text-gradient">
+                    <td className="px-3 py-4 text-right font-bold tabular-nums text-gradient sm:px-6">
                       {entry.score}
                     </td>
                   </motion.tr>
@@ -211,6 +213,7 @@ export default function LeaderboardPage() {
               })}
             </motion.tbody>
           </table>
+          </div>
         )}
       </div>
     </PageShell>

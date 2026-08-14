@@ -49,7 +49,7 @@ export function useClickBursts() {
   const reduceMotion = useReducedMotion();
 
   const addBurst = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
+      (e: React.PointerEvent<HTMLButtonElement> | React.MouseEvent<HTMLButtonElement>) => {
       if (reduceMotion) return;
 
       const rect = e.currentTarget.getBoundingClientRect();

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { AnimatedButton } from "@/components/ui/AnimatedButton";
 import { springTransition } from "@/lib/motion";
@@ -7,6 +8,7 @@ import { springTransition } from "@/lib/motion";
 type GameResultsProps = {
   score: number;
   modeLabel?: string;
+  previousBest: number | null;
   onPlayAgain: () => void;
 };
 
@@ -50,7 +52,14 @@ function Confetti() {
   );
 }
 
-export function GameResults({ score, modeLabel, onPlayAgain }: GameResultsProps) {
+export function GameResults({
+  score,
+  modeLabel,
+  previousBest,
+  onPlayAgain,
+}: GameResultsProps) {
+  const isNewBest = previousBest === null ? score > 0 : score > previousBest;
+
   return (
     <div className="relative py-4 text-center">
       <Confetti />
@@ -80,14 +89,27 @@ export function GameResults({ score, modeLabel, onPlayAgain }: GameResultsProps)
       >
         {score}
       </motion.p>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.45 }}
+        className="mt-3 text-sm font-medium text-orange-400"
+      >
+        {isNewBest
+          ? "New personal best!"
+          : `Best: ${previousBest ?? "—"}`}
+      </motion.p>
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
-        className="mt-8"
+        className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
       >
         <AnimatedButton onClick={onPlayAgain} pulse>
           Play Again
+        </AnimatedButton>
+        <AnimatedButton href="/leaderboard" variant="secondary">
+          Leaderboard
         </AnimatedButton>
       </motion.div>
     </div>

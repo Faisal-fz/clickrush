@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 type GameTimerProps = {
@@ -10,6 +10,7 @@ type GameTimerProps = {
 };
 
 export function GameTimer({ startedAt, duration, onExpire }: GameTimerProps) {
+  const reduceMotion = useReducedMotion();
   const [secondsLeft, setSecondsLeft] = useState(duration);
 
   useEffect(() => {
@@ -37,9 +38,12 @@ export function GameTimer({ startedAt, duration, onExpire }: GameTimerProps) {
           Time remaining
         </span>
         <motion.span
-          animate={isUrgent ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+          aria-live="polite"
+          animate={
+            isUrgent && !reduceMotion ? { scale: [1, 1.15, 1] } : { scale: 1 }
+          }
           transition={
-            isUrgent
+            isUrgent && !reduceMotion
               ? { repeat: Infinity, duration: 0.6 }
               : { duration: 0.2 }
           }

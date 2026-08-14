@@ -107,6 +107,7 @@ export default function ProfilePage() {
                 <button
                   key={tab.mode}
                   type="button"
+                  aria-pressed={selectedMode === tab.mode}
                   onClick={() => setSelectedMode(tab.mode)}
                   className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                     selectedMode === tab.mode
@@ -166,13 +167,14 @@ export default function ProfilePage() {
               <p className="text-sm text-zinc-500">No games played yet.</p>
             </motion.div>
           ) : (
-            <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs sm:text-sm">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="px-6 py-4 font-medium text-zinc-400">Date</th>
-                  <th className="px-6 py-4 font-medium text-zinc-400">Mode</th>
-                  <th className="px-6 py-4 font-medium text-zinc-400">Score</th>
-                  <th className="px-6 py-4 text-right font-medium text-zinc-400">
+                  <th className="px-3 py-4 font-medium text-zinc-400 sm:px-6">Date</th>
+                  <th className="px-3 py-4 font-medium text-zinc-400 sm:px-6">Mode</th>
+                  <th className="px-3 py-4 font-medium text-zinc-400 sm:px-6">Score</th>
+                  <th className="hidden px-3 py-4 text-right font-medium text-zinc-400 sm:table-cell sm:px-6">
                     Duration
                   </th>
                 </tr>
@@ -188,24 +190,25 @@ export default function ProfilePage() {
                     variants={rowStagger}
                     className="border-b border-white/5 last:border-0"
                   >
-                    <td className="px-6 py-4 text-zinc-300">
+                    <td className="px-3 py-4 whitespace-nowrap text-zinc-300 sm:px-6">
                       {formatDate(game.startedAt)}
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 py-4 sm:px-6">
                       <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-xs font-medium text-zinc-300">
                         {getModeLabel(fromPrismaMode(game.mode))}
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-bold tabular-nums text-gradient">
+                    <td className="px-3 py-4 font-bold tabular-nums text-gradient sm:px-6">
                       {game.score ?? "—"}
                     </td>
-                    <td className="px-6 py-4 text-right text-zinc-300">
+                    <td className="hidden px-3 py-4 text-right text-zinc-300 sm:table-cell sm:px-6">
                       {formatDuration(game.startedAt, game.endedAt)}
                     </td>
                   </motion.tr>
                 ))}
               </motion.tbody>
             </table>
+            </div>
           )}
         </motion.div>
       </motion.div>

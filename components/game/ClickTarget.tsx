@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { ClickBurst, useClickBursts } from "./ClickBurst";
 
 type ClickTargetProps = {
@@ -10,11 +11,26 @@ type ClickTargetProps = {
 };
 
 export function ClickTarget({ score, disabled, onClick }: ClickTargetProps) {
+  const reduceMotion = useReducedMotion();
   const { bursts, addBurst } = useClickBursts();
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!disabled) {
+      buttonRef.current?.focus();
+    }
+  }, [disabled]);
+
+  function handlePointerDown(e: React.PointerEvent<HTMLButtonElement>) {
+    if (disabled || e.button !== 0) return;
+    e.preventDefault();
+    addBurst(e);
+    onClick();
+  }
 
   function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
     if (disabled) return;
-    addBurst(e);
+    if (e.detail !== 0) return;
     onClick();
   }
 
@@ -25,7 +41,8 @@ export function ClickTarget({ score, disabled, onClick }: ClickTargetProps) {
       </p>
       <motion.p
         key={score}
-        initial={{ scale: 1.3 }}
+        aria-live="polite"
+        initial={reduceMotion ? false : { scale: 1.3 }}
         animate={{ scale: 1 }}
         transition={{ type: "spring", stiffness: 400, damping: 15 }}
         className="text-7xl font-bold tabular-nums text-gradient"
@@ -34,13 +51,15 @@ export function ClickTarget({ score, disabled, onClick }: ClickTargetProps) {
       </motion.p>
       <div className="relative">
         {!disabled && (
-          <div className="absolute inset-0 -m-4 animate-pulse rounded-full bg-orange-500/20 blur-xl" />
+          <div className="absolute inset-0 -m-4 animate-pulse rounded-full bg-orange-500/20 blur-xl motion-reduce:animate-none" />
         )}
         <button
+          ref={buttonRef}
           type="button"
           disabled={disabled}
+          onPointerDown={handlePointerDown}
           onClick={handleClick}
-          className={`relative flex h-48 w-48 items-center justify-center rounded-full text-xl font-bold text-white transition-all ${
+          className={`relative flex h-48 w-48 touch-manipulation select-none items-center justify-center rounded-full text-xl font-bold text-white transition-all ${
             disabled
               ? "cursor-not-allowed bg-zinc-700 opacity-50 grayscale"
               : "btn-primary cursor-pointer shadow-[0_0_60px_rgba(249,115,22,0.4)] active:scale-95"
